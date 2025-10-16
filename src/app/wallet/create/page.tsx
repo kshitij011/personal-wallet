@@ -1,10 +1,26 @@
 "use client";
 import React, { useState } from "react";
+import { createWallet } from "../utils/createWallet";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useWalletStore } from "../store/walletStore";
 
 export default function Create() {
+    const setMnemonic = useWalletStore((state) => state.setMnemonic);
+    const router = useRouter();
     const [showSeedInputs, setShowSeedInputs] = useState(false);
     const [showPrivateKey, setShowPrivateKey] = useState(false);
+
+    function handleCreateWallet() {
+        const mnemonic = createWallet();
+        console.log("Generated Mnemonic:", mnemonic);
+
+        // Store in global state
+        setMnemonic(mnemonic);
+
+        // Navigate to preview
+        router.push("/wallet/create/mnemonic-preview");
+    }
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-center relative overflow-hidden">
@@ -21,7 +37,10 @@ export default function Create() {
 
                 {/* Create Wallet */}
                 <div className="flex flex-col items-center gap-8 mb-10">
-                    <button className="w-80 text-white text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-200">
+                    <button
+                        className="w-80 text-white text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer"
+                        onClick={handleCreateWallet}
+                    >
                         Create New Wallet
                     </button>
 
@@ -31,7 +50,7 @@ export default function Create() {
                             setShowSeedInputs(!showSeedInputs);
                             setShowPrivateKey(false);
                         }}
-                        className="w-80 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300"
+                        className="w-80 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
                         whileTap={{ scale: 0.97 }}
                     >
                         {showSeedInputs
@@ -63,7 +82,7 @@ export default function Create() {
                                     ))}
                                 </div>
 
-                                <button className="mt-8 text-white text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 py-4 px-8 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
+                                <button className="mt-8 text-white text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 py-4 px-8 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer">
                                     Import Wallet
                                 </button>
                             </motion.div>
@@ -76,7 +95,7 @@ export default function Create() {
                             setShowPrivateKey(!showPrivateKey);
                             setShowSeedInputs(false);
                         }}
-                        className="w-80 bg-gradient-to-r from-red-600 to-rose-700 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300"
+                        className="w-80 bg-gradient-to-r from-red-600 to-rose-700 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
                         whileTap={{ scale: 0.97 }}
                     >
                         {showPrivateKey
@@ -115,7 +134,7 @@ export default function Create() {
                                         className="w-full text-center bg-gray-900 text-white py-3 rounded-xl border border-gray-700 focus:border-red-400 outline-none focus:ring-2 focus:ring-red-400/50 transition"
                                     />
 
-                                    <button className="mt-6 w-full text-white text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-700 py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
+                                    <button className="mt-6 w-full text-white text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-700 py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer">
                                         Import Wallet
                                     </button>
                                 </div>
