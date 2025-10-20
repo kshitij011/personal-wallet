@@ -3,6 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useWalletStore } from "../../../store/walletStore";
+import {
+    deriveKeyFromPassword,
+    encryptMnemonic,
+} from "@/app/wallet/utils/encrypt";
+// import { webcrypto } from "crypto";
 
 export default function SetPassword() {
     const router = useRouter();
@@ -19,7 +24,7 @@ export default function SetPassword() {
         }
     }, [mnemonic, router]);
 
-    function handleSetPassword() {
+    async function handleSetPassword() {
         if (!password || !confirmPassword) {
             setError("Please fill in both password fields.");
             return;
@@ -30,8 +35,33 @@ export default function SetPassword() {
             return;
         }
 
-        // TODO: Encrypt mnemonic with password and store securely in browser storage
-        console.log("✅ Password set for mnemonic:", mnemonic);
+        if (password.length < 5) {
+            setError("Password must be at least 8 characters long.");
+            return;
+        }
+
+        if (localStorage.getItem("wallet_encrypted")) {
+            setError("A wallet already exists in local storage.");
+            return;
+        }
+
+        const { derivedKey, salt } = await deriveKeyFromPassword(password);
+        const encryptedMnemonic = await encryptMnemonic(mnemonic!, derivedKey);
+
+        localStorage.setItem(
+            "wallet_encrypted",
+            JSON.stringify({
+                ciphertext: encryptedMnemonic.ciphertext,
+                iv: encryptedMnemonic.iv,
+                salt: btoa(String.fromCharCode(...salt)),
+            })
+        );
+
+        console.log("✅ Stored encrypted mnemonic:", {
+            ciphertext: encryptedMnemonic.ciphertext,
+            iv: encryptedMnemonic.iv,
+            salt: btoa(String.fromCharCode(...salt)),
+        });
 
         // After encryption success
         router.push("/wallet/dashboard");

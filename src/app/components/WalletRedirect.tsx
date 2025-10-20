@@ -8,7 +8,7 @@ export default function WalletRedirect() {
 
     useEffect(() => {
         try {
-            const vault = localStorage.getItem("my_wallet_vault_v1");
+            const vault = localStorage.getItem("wallet_encrypted");
 
             if (vault) {
                 router.replace("/wallet/unlock");

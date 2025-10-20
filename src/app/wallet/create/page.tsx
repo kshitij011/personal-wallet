@@ -22,6 +22,10 @@ export default function Create() {
         router.push("/wallet/create/mnemonic-preview");
     }
 
+    function handleImportSeedPhrase() {
+        router.push("/wallet/import");
+    }
+
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-center relative overflow-hidden">
             {/* Glowing circles */}
@@ -47,47 +51,13 @@ export default function Create() {
                     {/* Import Seed Phrase Button */}
                     <motion.button
                         onClick={() => {
-                            setShowSeedInputs(!showSeedInputs);
-                            setShowPrivateKey(false);
+                            handleImportSeedPhrase();
                         }}
                         className="w-80 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
                         whileTap={{ scale: 0.97 }}
                     >
-                        {showSeedInputs
-                            ? "Hide Seed Phrase"
-                            : "Import Seed Phrase"}
+                        Import Seed Phrase
                     </motion.button>
-
-                    {/* Import Seed Phrase Drawer */}
-                    <AnimatePresence>
-                        {showSeedInputs && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{
-                                    duration: 0.4,
-                                    ease: "easeInOut",
-                                }}
-                                className="overflow-hidden mt-6"
-                            >
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                    {Array.from({ length: 12 }).map((_, i) => (
-                                        <input
-                                            key={i}
-                                            type="text"
-                                            placeholder={`Word ${i + 1}`}
-                                            className="w-full text-center bg-gray-800 text-white py-3 rounded-xl border border-gray-600 focus:border-purple-400 outline-none focus:ring-2 focus:ring-purple-400/50 transition"
-                                        />
-                                    ))}
-                                </div>
-
-                                <button className="mt-8 text-white text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 py-4 px-8 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer">
-                                    Import Wallet
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* Import Private Key Button */}
                     <motion.button
@@ -98,12 +68,10 @@ export default function Create() {
                         className="w-80 bg-gradient-to-r from-red-600 to-rose-700 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
                         whileTap={{ scale: 0.97 }}
                     >
-                        {showPrivateKey
-                            ? "Hide Private Key"
-                            : "Import Private Key"}
+                        Import Private Key
                     </motion.button>
 
-                    {/* Private Key Drawer */}
+                    {/* Private Key Drawer*/}
                     <AnimatePresence>
                         {showPrivateKey && (
                             <motion.div
