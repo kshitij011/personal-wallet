@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useWalletStore } from "@/app/wallet/store/walletStore";
-import { decryptMnemonic } from "@/app/wallet/utils/decrypt"; // assuming you moved decryption logic here
+import { decryptMnemonic } from "@/app/wallet/utils/decrypt";
 
 export default function Unlock() {
     const router = useRouter();

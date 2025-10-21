@@ -1,5 +1,3 @@
-// src/app/wallet/utils/storage.ts
-
 export interface AccountMetadata {
     index: number;
     address: string;

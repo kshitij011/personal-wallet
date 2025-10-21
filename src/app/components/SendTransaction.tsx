@@ -52,7 +52,6 @@ function SendTransaction({
         });
 
         const data = await res.json();
-        // console.log("Hex Nonce: ", data);
         console.log("Nonce: ", parseInt(data.result, 16));
         return parseInt(data.result, 16);
     };
@@ -61,9 +60,8 @@ function SendTransaction({
         const body = {
             jsonrpc: "2.0",
             method: "eth_getBlockByNumber",
-            // method: "parity_nextNonce",  //Unsupported Media Type
             params: ["latest", false],
-            id: 1, // doesn't need to match chainid, for simplicity use 1
+            id: 1,
         };
 
         const res = await fetch("https://rpc.sepolia.ethpandaops.io", {
@@ -79,8 +77,6 @@ function SendTransaction({
         console.log("Base Fee Per Gas: ", baseFee);
         const maxPriorityFeePerGas = BigInt(1e9);
 
-        //This is just a safety buffer.
-        // If you don’t add buffer, and the base fee rises before your transaction is mined, it might get stuck.
         const maxFeePerGas =
             baseFee + maxPriorityFeePerGas + baseFee / BigInt(2);
         return { baseFee, maxPriorityFeePerGas, maxFeePerGas };
@@ -128,7 +124,7 @@ function SendTransaction({
             to ? hexToBytes(to.replace(/^0x/, "")) : [],
             BigInt(value),
             data ? hexToBytes(data.replace(/^0x/, "")) : [],
-            [], // accessList empty
+            [],
         ];
     }
 
@@ -178,7 +174,7 @@ function SendTransaction({
             setTxStatus("pending");
             setTxHash(null);
 
-            const chainId = 11155111; // Sepolia
+            const chainId = 11155111;
             const data = message
                 ? "0x" + Buffer.from(message, "utf8").toString("hex")
                 : "0x";
@@ -206,7 +202,7 @@ function SendTransaction({
             const result = await sendRawTransaction(rawTx);
             console.log("Transaction Hash:", result.result);
 
-            setTxHash(result.result); // store hash
+            setTxHash(result.result);
             setTxStatus("done");
 
             if (result.result) {
@@ -214,7 +210,7 @@ function SendTransaction({
             }
         } catch (err) {
             console.error("Transaction failed", err);
-            setTxStatus("idle"); // reset so user can retry
+            setTxStatus("idle");
         }
     };
 
@@ -247,7 +243,7 @@ function SendTransaction({
             };
 
             setTxPreview(preview);
-            setTxStatus("idle"); // reset status each time modal opens
+            setTxStatus("idle");
             setTxHash(null);
             setIsModalOpen(true);
         } else {
@@ -291,7 +287,6 @@ function SendTransaction({
             {isModalOpen && txPreview && (
                 <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50">
                     <div className="bg-white rounded-xl shadow-lg p-6 w-fit">
-                        {/* Show preview until pending/done */}
                         {txStatus === "idle" && (
                             <>
                                 <h2 className="text-lg font-bold mb-4 text-center">

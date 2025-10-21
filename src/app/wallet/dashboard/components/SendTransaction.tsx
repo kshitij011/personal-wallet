@@ -1,4 +1,5 @@
 "use client";
+import { useNetworkStore } from "@/app/wallet/store/networkStore";
 import { useState } from "react";
 import RLP from "rlp";
 import { keccak256 } from "ethereum-cryptography/keccak";
@@ -28,10 +29,9 @@ export default function SendTransaction({
     >("idle");
     const [txHash, setTxHash] = useState<string | null>(null);
 
+    const { selectedNetwork } = useNetworkStore();
+
     // ============= Helper RPC Calls =============
-    // const RPC_URL = process.env.NEXT_PUBLIC_ALCHEMY_URL
-    //     ? process.env.NEXT_PUBLIC_ALCHEMY_URL
-    //     : "";
 
     const rpcCall = async (method: string, params: any[]) => {
         const body = {
@@ -40,26 +40,19 @@ export default function SendTransaction({
             params,
             id: 1,
         };
-        const res = await fetch(
-            process.env.NEXT_PUBLIC_ALCHEMY_URL
-                ? process.env.NEXT_PUBLIC_ALCHEMY_URL
-                : "",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            }
-        );
+        const res = await fetch(selectedNetwork.rpcUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
 
         if (!res.ok) {
-            // Throw so it will be caught in ConfirmTransaction
             const text = await res.text();
             throw new Error(`RPC HTTP error ${res.status}: ${text}`);
         }
 
         const json = await res.json();
 
-        // Optional: check JSON-RPC error
         if (json.error) {
             throw new Error(`RPC Error: ${JSON.stringify(json.error)}`);
         }
@@ -85,9 +78,7 @@ export default function SendTransaction({
     };
 
     const estimateGasLimit = async (tx: any) => {
-        console.log("Estimating gas for:", tx);
         const res = await rpcCall("eth_estimateGas", [tx]);
-        console.log("eth_estimateGas RPC response:", res);
         return parseInt(res.result, 16);
     };
 
@@ -119,9 +110,7 @@ export default function SendTransaction({
     function signTransaction(unsignedTx: (bigint | Uint8Array | never[])[]) {
         const encoded = RLP.encode(unsignedTx);
         const txHash = keccak256(Uint8Array.from([0x02, ...encoded]));
-        console.log("Private key: ", account.privateKey);
         const pk = account.privateKey!.replace(/^0x/, "");
-        console.log("Private key pk: ", pk);
         const sig = secp256k1.sign(txHash, hexToBytes(pk));
         return { r: sig.r, s: sig.s, v: sig.recovery };
     }
@@ -135,7 +124,7 @@ export default function SendTransaction({
         try {
             setTxStatus("pending");
             setTxHash(null);
-            const chainId = 11155111;
+            const chainId = selectedNetwork.chainId;
             const data = message
                 ? "0x" + Buffer.from(message, "utf8").toString("hex")
                 : "0x";
@@ -159,13 +148,9 @@ export default function SendTransaction({
             const rawTx =
                 "0x02" + Buffer.from(RLP.encode(signedTx)).toString("hex");
 
-            console.log("Alchemy url: ", process.env.NEXT_PUBLIC_ALCHEMY_URL);
-
-            console.log("Before sending raw tx");
             const result = await sendRawTransaction(rawTx);
             setTxHash(result.result);
             setTxStatus("done");
-            console.log("Tx done");
 
             if (result.result) onTxSuccess();
         } catch (err) {
@@ -180,17 +165,6 @@ export default function SendTransaction({
         const { baseFee, maxPriorityFeePerGas, maxFeePerGas } =
             await getFeeData();
 
-        const txForEstimate = {
-            from: account.address,
-            to,
-            value: "0x" + BigInt(value).toString(16),
-            data: message
-                ? "0x" + Buffer.from(message, "utf8").toString("hex")
-                : "0x",
-        };
-
-        console.log("Transaction for gas estimation:", txForEstimate);
-
         const gasLimit = await estimateGasLimit({
             from: account.address,
             to,
@@ -199,24 +173,6 @@ export default function SendTransaction({
                 ? "0x" + Buffer.from(message, "utf8").toString("hex")
                 : "0x",
         });
-
-        console.log("To:", to);
-        console.log("Value (wei):", value);
-        console.log("Message:", message);
-
-        // if (message && message.length > 0) {
-        //     txForEstimate.data =
-        //         "0x" + Buffer.from(message, "utf8").toString("hex");
-        // }
-
-        // const gasLimit = await estimateGasLimit({
-        //     from: account.address,
-        //     to,
-        //     value: "0x" + BigInt(value).toString(16),
-        //     data: message
-        //         ? "0x" + Buffer.from(message, "utf8").toString("hex")
-        //         : "0x",
-        // });
 
         setEstimatedGas(gasLimit);
 
@@ -340,7 +296,7 @@ export default function SendTransaction({
                             <div className="mt-4 text-sm text-center">
                                 ✅ Sent! Hash:{" "}
                                 <a
-                                    href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                                    href={`${selectedNetwork.explorer}/tx/${txHash}`}
                                     target="_blank"
                                     className="underline text-blue-400"
                                 >

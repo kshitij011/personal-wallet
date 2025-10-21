@@ -13,7 +13,6 @@ export default function Create() {
 
     function handleCreateWallet() {
         const mnemonic = createWallet();
-        console.log("Generated Mnemonic:", mnemonic);
 
         // Store in global state
         setMnemonic(mnemonic);

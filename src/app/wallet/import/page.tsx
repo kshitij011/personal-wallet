@@ -13,14 +13,12 @@ export default function ImportWallet() {
     const [mnemonicWords, setMnemonicWords] = useState(Array(12).fill(""));
     const [error, setError] = useState("");
 
-    // ✅ Update specific word input
     const handleWordChange = (index: number, value: string) => {
         const updatedWords = [...mnemonicWords];
         updatedWords[index] = value.trim().toLowerCase();
         setMnemonicWords(updatedWords);
     };
 
-    // ✅ Import logic
     const handleImport = async () => {
         setError("");
 

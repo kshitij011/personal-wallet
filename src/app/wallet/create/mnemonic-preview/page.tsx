@@ -15,8 +15,6 @@ export default function MnemonicPreview() {
         }
     }, [mnemonic, router]);
 
-    // if (!mnemonic) return null;
-
     const words = mnemonic ? mnemonic.split(" ") : [];
 
     const handleContinue = () => {

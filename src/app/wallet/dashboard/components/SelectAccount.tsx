@@ -29,7 +29,7 @@ export default function SelectAccount({
     }, []);
 
     return (
-        <div className="dropdown-container inline-flex flex-col items-center w-64 mb-8">
+        <div className="dropdown-container inline-flex flex-col items-center w-72">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

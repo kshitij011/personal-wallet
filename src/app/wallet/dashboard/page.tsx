@@ -13,6 +13,7 @@ import {
     addAccountMetadata,
 } from "@/app/wallet/utils/storage";
 import SelectAccount from "./components/SelectAccount";
+import SwitchNetwork from "./components/SwitchNetwork";
 import SendTransaction from "./components/SendTransaction";
 
 export default function Dashboard() {
@@ -66,13 +67,13 @@ export default function Dashboard() {
         );
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col items-center justify-center relative overflow-hidden">
+        <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col items-center justify-center relative overflow-hidden py-4">
             {/* Glowing Background */}
             <div className="absolute w-96 h-96 bg-purple-700/30 rounded-full blur-3xl top-[-100px] left-[-100px] animate-pulse"></div>
             <div className="absolute w-96 h-96 bg-blue-600/30 rounded-full blur-3xl bottom-[-120px] right-[-100px] animate-pulse"></div>
 
             <div className="relative z-10 bg-gray-900/60 backdrop-blur-xl rounded-3xl p-10 shadow-2xl border border-gray-700/50 max-w-4xl w-full text-center">
-                <h1 className="text-4xl font-extrabold mb-8">
+                <h1 className="text-4xl font-extrabold mb-8 text-purple-400">
                     Your Wallet Dashboard
                 </h1>
 
@@ -94,31 +95,39 @@ export default function Dashboard() {
                     </motion.div>
                 ) : (
                     <>
-                        <SelectAccount
-                            accounts={accounts}
-                            selectedAccount={selectedAccount}
-                            setSelectedAccount={setSelectedAccount}
-                            handleCreateAccount={handleCreateAccount}
-                        />
+                        <div className="flex items-center justify-between mb-6 gap-6">
+                            <SelectAccount
+                                accounts={accounts}
+                                selectedAccount={selectedAccount}
+                                setSelectedAccount={setSelectedAccount}
+                                handleCreateAccount={handleCreateAccount}
+                            />
+                            <SwitchNetwork />
+                        </div>
 
-                        {/* Display Selected Account */}
+                        {/* Combined Account + Balance Box */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="bg-gray-800/70 p-6 rounded-2xl border border-gray-700"
+                            className="bg-gray-800/70 p-6 rounded-2xl border border-gray-700 mb-6 flex items-center justify-between flex-wrap gap-4"
                         >
-                            <h2 className="text-xl font-semibold text-purple-300 mb-2">
-                                Account {selectedAccount + 1}
-                            </h2>
-                            <p className="text-gray-400 break-all">
-                                {accounts[selectedAccount].address}
-                            </p>
+                            {/* Account Info */}
+                            <div className="text-left max-w-[70%]">
+                                <h2 className="text-xl font-semibold text-purple-300 mb-1">
+                                    Account {selectedAccount + 1}
+                                </h2>
+                                <p className="text-gray-400 break-all text-sm">
+                                    {accounts[selectedAccount].address}
+                                </p>
+                            </div>
+
+                            {/* Balance Section */}
+                            <ViewBalance
+                                account={accounts[selectedAccount].address}
+                            />
                         </motion.div>
 
-                        <ViewBalance
-                            account={accounts[selectedAccount].address}
-                        />
                         <SendTransaction
                             account={accounts[selectedAccount]}
                             onTxSuccess={() =>

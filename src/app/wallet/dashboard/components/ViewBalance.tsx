@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { useNetworkStore } from "@/app/wallet/store/networkStore";
+import { RotateCw } from "lucide-react";
 
 interface ViewBalanceProps {
     account: string;
@@ -8,6 +10,7 @@ interface ViewBalanceProps {
 export default function ViewBalance({ account }: ViewBalanceProps) {
     const [balance, setBalance] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const { selectedNetwork } = useNetworkStore();
 
     const refreshBalance = useCallback(async () => {
         if (!account) return;
@@ -20,16 +23,11 @@ export default function ViewBalance({ account }: ViewBalanceProps) {
                 id: 1,
             };
 
-            const res = await fetch(
-                process.env.NEXT_PUBLIC_ALCHEMY_URL
-                    ? process.env.NEXT_PUBLIC_ALCHEMY_URL
-                    : "",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                }
-            );
+            const res = await fetch(selectedNetwork.rpcUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
 
             const data = await res.json();
             if (data.result) {
@@ -42,29 +40,39 @@ export default function ViewBalance({ account }: ViewBalanceProps) {
         } finally {
             setLoading(false);
         }
-    }, [account]);
+    }, [account, selectedNetwork]);
 
     useEffect(() => {
         refreshBalance();
-    }, [refreshBalance]);
+    }, [refreshBalance, selectedNetwork]);
 
     return (
-        <div className="bg-gray-800/70 border border-gray-700 rounded-2xl p-6 my-6">
-            <h3 className="text-2xl font-semibold text-purple-300 mb-2">
-                Balance
-            </h3>
-            <p className="text-gray-300 text-lg">
-                {loading
-                    ? "Fetching..."
-                    : balance
-                    ? `${balance} ETH`
-                    : "Unable to load balance"}
-            </p>
+        <div className="flex items-center gap-3 bg-gray-700/40 px-4 py-3 rounded-xl border border-gray-600">
+            <div className="flex flex-col text-left">
+                <span className="text-purple-300 text-sm font-medium">
+                    Balance
+                </span>
+                <span className="text-gray-200 text-lg font-semibold">
+                    {loading
+                        ? "..."
+                        : balance
+                        ? `${balance} ETH`
+                        : "0.000000 ETH"}
+                </span>
+            </div>
             <button
                 onClick={refreshBalance}
-                className="mt-4 bg-gradient-to-r from-purple-500 to-blue-600 px-5 py-2 rounded-xl text-white font-semibold hover:scale-105 transition-transform cursor-pointer"
+                className={`p-2 rounded-full hover:bg-gray-600 transition ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                title="Refresh Balance"
             >
-                Refresh
+                <RotateCw
+                    size={18}
+                    className={`text-purple-400 ${
+                        loading ? "animate-spin" : ""
+                    }`}
+                />
             </button>
         </div>
     );

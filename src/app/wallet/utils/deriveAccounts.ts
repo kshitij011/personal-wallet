@@ -24,12 +24,8 @@ export async function deriveAccounts(
 
         const privateKey = bytesToHex(child.privateKey!);
 
-        // 🔥 Get the uncompressed public key (65 bytes: 0x04 + X + Y)
         const publicKeyFull = secp256k1.getPublicKey(child.privateKey!, false);
-        // Remove prefix 0x04 → only 64 bytes
         const publicKey = publicKeyFull.slice(1);
-
-        // ✅ Hash and take last 20 bytes
         const address = "0x" + bytesToHex(keccak_256(publicKey).slice(-20));
 
         return {

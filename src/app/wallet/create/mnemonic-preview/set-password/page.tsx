@@ -57,12 +57,6 @@ export default function SetPassword() {
             })
         );
 
-        console.log("✅ Stored encrypted mnemonic:", {
-            ciphertext: encryptedMnemonic.ciphertext,
-            iv: encryptedMnemonic.iv,
-            salt: btoa(String.fromCharCode(...salt)),
-        });
-
         // After encryption success
         router.push("/wallet/dashboard");
     }

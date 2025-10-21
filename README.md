@@ -19,4 +19,16 @@ First, create `.env` file and enter values:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+##For testing only
+
+> To reset the wallet use these commands in brower console:
+
+```
+localStorage.removeItem("walletAccounts");
+```
+
+and
+
+```
+localStorage.removeItem("wallet_encrypted");
+```
