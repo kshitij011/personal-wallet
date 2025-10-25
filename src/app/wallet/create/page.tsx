@@ -72,7 +72,7 @@ export default function Create() {
                     </motion.button>
 
                     {/* Import Private Key Button */}
-                    <motion.button
+                    {/* <motion.button
                         onClick={() => {
                             setShowPrivateKey(!showPrivateKey);
                             setShowSeedInputs(false);
@@ -81,10 +81,10 @@ export default function Create() {
                         whileTap={{ scale: 0.97 }}
                     >
                         Import Private Key
-                    </motion.button>
+                    </motion.button> */}
 
                     {/* Private Key Drawer*/}
-                    <AnimatePresence>
+                    {/* <AnimatePresence>
                         {showPrivateKey && (
                             <motion.div
                                 initial={{ height: 0, opacity: 0 }}
@@ -120,7 +120,7 @@ export default function Create() {
                                 </div>
                             </motion.div>
                         )}
-                    </AnimatePresence>
+                    </AnimatePresence> */}
                 </div>
             </div>
         </main>
