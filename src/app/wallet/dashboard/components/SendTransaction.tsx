@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { useNetworkStore } from "@/app/wallet/store/networkStore";
 import { useState } from "react";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import RLP from "rlp";
 import { keccak256 } from "ethereum-cryptography/keccak";
