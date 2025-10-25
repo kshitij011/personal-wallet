@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 import { useNetworkStore } from "@/app/wallet/store/networkStore";
 import { useState } from "react";
@@ -15,6 +14,41 @@ interface SendTransactionProps {
     onTxSuccess: () => void;
 }
 
+interface TransactionPreview {
+    to: string;
+    value: string;
+    message: string;
+    nonce: number;
+    baseFee: string;
+    maxPriorityFeePerGas: string;
+    maxFeePerGas: string;
+    gasLimit: number;
+}
+
+interface RpcResponse<T> {
+    jsonrpc: string;
+    id: number;
+    result: T;
+    error?: { code: number; message: string };
+}
+
+interface FeeData {
+    baseFee: bigint;
+    maxPriorityFeePerGas: bigint;
+    maxFeePerGas: bigint;
+}
+
+interface UnsignedTxParams {
+    chainId: number;
+    nonce: number;
+    maxPriorityFeePerGas: bigint;
+    maxFeePerGas: bigint;
+    gasLimit: number;
+    to?: string;
+    value: bigint;
+    data: string;
+}
+
 export default function SendTransaction({
     account,
     onTxSuccess,
@@ -23,7 +57,7 @@ export default function SendTransaction({
     const [to, setTo] = useState("");
     const [value, setValue] = useState("");
     const [message, setMessage] = useState("");
-    const [txPreview, setTxPreview] = useState<any>(null);
+    const [txPreview, setTxPreview] = useState<TransactionPreview | null>(null);
     const [estimatedGas, setEstimatedGas] = useState<number | null>(null);
     const [txStatus, setTxStatus] = useState<
         "idle" | "pending" | "done" | "failed"
@@ -34,7 +68,10 @@ export default function SendTransaction({
 
     // ============= Helper RPC Calls =============
 
-    const rpcCall = async (method: string, params: any[]) => {
+    const rpcCall = async <T,>(
+        method: string,
+        params: unknown[]
+    ): Promise<RpcResponse<T>> => {
         const body = {
             jsonrpc: "2.0",
             method,
@@ -52,7 +89,7 @@ export default function SendTransaction({
             throw new Error(`RPC HTTP error ${res.status}: ${text}`);
         }
 
-        const json = await res.json();
+        const json = (await res.json()) as RpcResponse<T>;
 
         if (json.error) {
             throw new Error(`RPC Error: ${JSON.stringify(json.error)}`);
@@ -61,16 +98,19 @@ export default function SendTransaction({
         return json;
     };
 
-    const getNonce = async () => {
-        const res = await rpcCall("eth_getTransactionCount", [
+    const getNonce = async (): Promise<number> => {
+        const res = await rpcCall<string>("eth_getTransactionCount", [
             account.address,
             "latest",
         ]);
         return parseInt(res.result, 16);
     };
 
-    const getFeeData = async () => {
-        const res = await rpcCall("eth_getBlockByNumber", ["latest", false]);
+    const getFeeData = async (): Promise<FeeData> => {
+        const res = await rpcCall<{ baseFeePerGas: string }>(
+            "eth_getBlockByNumber",
+            ["latest", false]
+        );
         const baseFee = BigInt(res.result.baseFeePerGas);
         const maxPriorityFeePerGas = BigInt(1e9);
         const maxFeePerGas =
@@ -78,13 +118,15 @@ export default function SendTransaction({
         return { baseFee, maxPriorityFeePerGas, maxFeePerGas };
     };
 
-    const estimateGasLimit = async (tx: any) => {
-        const res = await rpcCall("eth_estimateGas", [tx]);
+    const estimateGasLimit = async (
+        tx: Record<string, string>
+    ): Promise<number> => {
+        const res = await rpcCall<string>("eth_estimateGas", [tx]);
         return parseInt(res.result, 16);
     };
 
     // ============= Transaction Building =============
-    function buildTransaction(params: any) {
+    function buildTransaction(params: UnsignedTxParams) {
         const {
             chainId,
             nonce,
@@ -116,7 +158,9 @@ export default function SendTransaction({
         return { r: sig.r, s: sig.s, v: sig.recovery };
     }
 
-    const sendRawTransaction = async (rawTx: string) => {
+    const sendRawTransaction = async (
+        rawTx: string
+    ): Promise<RpcResponse<string>> => {
         return await rpcCall("eth_sendRawTransaction", [rawTx]);
     };
 
@@ -150,7 +194,7 @@ export default function SendTransaction({
                 "0x02" + Buffer.from(RLP.encode(signedTx)).toString("hex");
 
             const result = await sendRawTransaction(rawTx);
-            setTxHash(result.result);
+            setTxHash(result.result ?? null);
             setTxStatus("done");
 
             if (result.result) onTxSuccess();

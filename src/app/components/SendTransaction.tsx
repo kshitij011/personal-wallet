@@ -1,9 +1,19 @@
-// @ts-nocheck
 import { useState } from "react";
 import RLP from "rlp";
 import { keccak256 } from "ethereum-cryptography/keccak";
 import { secp256k1 } from "ethereum-cryptography/secp256k1";
 import { hexToBytes, bytesToHex } from "ethereum-cryptography/utils";
+
+interface TxPreview {
+    to: string;
+    value: string;
+    message?: string;
+    nonce: number;
+    baseFee: string;
+    maxPriorityFeePerGas: string;
+    maxFeePerGas: string;
+    gasLimit: number;
+}
 
 type UnsignedTxParams = {
     chainId: number;
@@ -29,7 +39,7 @@ function SendTransaction({
     const [value, setValue] = useState("");
     const [message, setMessage] = useState("");
 
-    const [txPreview, setTxPreview] = useState<any>(null);
+    const [txPreview, setTxPreview] = useState<TxPreview | null>(null);
     const [estimatedGas, setEstimatedGas] = useState<number | null>(null);
 
     const [txStatus, setTxStatus] = useState<"idle" | "pending" | "done">(
@@ -148,7 +158,12 @@ function SendTransaction({
         };
     }
 
-    async function sendRawTransaction(rawTx: string): Promise<any> {
+    async function sendRawTransaction(rawTx: string): Promise<{
+        jsonrpc: string;
+        id: number;
+        result?: string;
+        error?: { code: number; message: string };
+    }> {
         const body = {
             jsonrpc: "2.0",
             method: "eth_sendRawTransaction",
@@ -203,7 +218,7 @@ function SendTransaction({
             const result = await sendRawTransaction(rawTx);
             console.log("Transaction Hash:", result.result);
 
-            setTxHash(result.result);
+            setTxHash(result.result ?? null);
             setTxStatus("done");
 
             if (result.result) {
