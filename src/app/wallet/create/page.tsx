@@ -14,6 +14,19 @@ export default function Create() {
     function handleCreateWallet() {
         const mnemonic = createWallet();
 
+        console.log(
+            "Mnemonic is generated using the bip39 library.\n 12 words are selected randomly and from the bip39 wordlist."
+        );
+        console.log(
+            "Each time the mnemonic generated is unique for each user.\n The probability of two people generating the exact same BIP39 mnemonic phrase is astronomically low."
+        );
+        console.log(
+            "For a 12-word mnemonic, the number of possible combinations is approximately about 5.44×10^39 possible phrases."
+        );
+        console.log(
+            "This number is vastly larger than the estimated number of stars in the observable universe, making the chance of a collision effectively zero for practical purposes."
+        );
+
         // Store in global state
         setMnemonic(mnemonic);
 

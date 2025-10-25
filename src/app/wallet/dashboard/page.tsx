@@ -57,6 +57,17 @@ export default function Dashboard() {
         addAccountMetadata({ index: nextIndex, address: newAccount.address });
         setAccounts((prev) => [...prev, newAccount]);
         setSelectedAccount(nextIndex);
+
+        console.log(
+            "Whenever you unlock your wallet, your password's key is derived again for decrypting the mnemonic."
+        );
+        console.log(
+            "Once the mnemonic is decrypted the accounts are derived from the mnemonic which outputs the same private keys each time you unlock the wallet, which is converted into address using sha256 hashing algorithm."
+        );
+        console.log(
+            "This way your accounts remain safe as it's private keys are never stored in wallet. Everything happens locally on your browser."
+        );
+        console.log("We use accounts using HDKeys and spec256k1 cryptography.");
     };
 
     if (loading)

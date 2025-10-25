@@ -57,6 +57,20 @@ export default function SetPassword() {
             })
         );
 
+        console.log(
+            "Your mnemonic is encrypted using the AES-GCM with the password's generated key you provide."
+        );
+        console.log(
+            "Most wallets use PBKDF2 for strong key generation from your password because the plain texts are easier to crack."
+        );
+        console.log(
+            "PBKDF2 work by hashing your password with a salt value to prevent against rainbow table attacks. This encrypted mnemonic (cipher text) and password's hash and salt is stored in browser storage."
+        );
+
+        console.log("Encrypted mnemonic: ", encryptedMnemonic.ciphertext);
+        console.log("Derived key: ", derivedKey);
+        console.log("Salt used: ", salt);
+
         // After encryption success
         router.push("/wallet/dashboard");
     }
